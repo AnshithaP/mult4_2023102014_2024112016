@@ -1,0 +1,8 @@
+# Simulation outputs (rebuilt by the commands in README.md)
+sim
+gls
+*.vcd
+
+# LibreLane run folders are very large; only final/metrics.json and the GDS are committed
+pnr/runs/
+runs/
