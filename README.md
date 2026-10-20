@@ -1,18 +1,31 @@
 # 4-bit Array Multiplier: RTL to GDSII (SKY130)
 
-Digital VLSI Design team assignment.
+A 4-bit × 4-bit unsigned array multiplier (16 AND gates, 12 full adders, registered inputs and output), taken from RTL to GDSII with open-source tools on SkyWater SKY130 (`sky130_fd_sc_hd`).
 
 ## Team
 
-| Name | Roll number | Parts |
-|------|-------------|-------|
-| Anshitha Penubolu | 2023102014 | A (RTL and verification), B (synthesis) |
-| TEAMMATE NAME | 2024112016 | C (static timing analysis), D (physical design) |
+| Name | Roll number |
+|------|-------------|
+| Anshitha Penubolu | 2023102014 |
+| TEAMMATE NAME | 2024112016 |
 
-## Environment
+## Repository layout
 
-IIC-OSIC-TOOLS Docker container, SKY130 PDK (`sky130A`), standard cell library `sky130_fd_sc_hd`, typical corner `tt_025C_1v80`.
-All commands are run from the repository root inside the container unless stated otherwise.
+```
+README.md
+rtl/      full_adder.v, mult_array.v
+tb/       tb_mult.v
+synth/    synth.tcl, mult_array_netlist.v, mult_array_stat.rpt
+sta/      sta.tcl, mult_array_timing.rpt
+pnr/      config.json, metrics.json, mult_array.gds
+report/   report.pdf
+```
+
+## Commands, in order
+
+All commands are run from the repository root inside the IIC-OSIC-TOOLS container unless stated otherwise.
+
+### Setup
 
 ```bash
 iverilog -V | head -1
@@ -21,9 +34,7 @@ sta -version
 echo $PDK_ROOT $PDK
 ```
 
-## Part A: RTL design and verification
-
-RTL simulation:
+### Part A: RTL simulation
 
 ```bash
 iverilog -g2012 -o sim tb/tb_mult.v rtl/full_adder.v rtl/mult_array.v
@@ -31,53 +42,43 @@ vvp sim
 gtkwave mult.vcd
 ```
 
-Result: `PASS: 256 vectors checked, 0 errors`
-
-Error test (temporarily changed `sum` in `rtl/full_adder.v` to `a ^ b`, re-ran the two commands below, then undid the change):
+Error test (with `sum` in `rtl/full_adder.v` temporarily changed to `a ^ b`, then changed back):
 
 ```bash
 iverilog -g2012 -o sim tb/tb_mult.v rtl/full_adder.v rtl/mult_array.v
 vvp sim
 ```
 
-Result: `FAIL: 256 vectors checked, 95 errors`
-
-Worked example: A = 9 (last digit of Anshitha's roll number 2023102014 is 4, 4 + 5 = 9), B = 7, P = 63.
-
-## Part B: Logic synthesis
+### Part B: Synthesis and netlist simulation
 
 ```bash
 yosys -c synth/synth.tcl
-```
-
-Gate-level (netlist) simulation:
-
-```bash
 CELLS=$PDK_ROOT/sky130A/libs.ref/sky130_fd_sc_hd/verilog
 iverilog -g2012 -DFUNCTIONAL -DUNIT_DELAY=#1 -o gls \
   tb/tb_mult.v $CELLS/primitives.v $CELLS/sky130_fd_sc_hd.v synth/mult_array_netlist.v
 vvp gls
 ```
 
-Result: `PASS: 256 vectors checked, 0 errors`
+### Part C: Static timing analysis
 
-## Part C: Static timing analysis
+Run with the clock period in `sta/sta.tcl` set to 10 ns, then again with it set to Tmin:
 
 ```bash
 sta sta/sta.tcl
 ```
 
-(Add every run here, with the clock period used.)
-
-## Part D: Physical design
+### Part D: Physical design
 
 ```bash
 cd pnr
 librelane config.json
+cp runs/<final-run>/final/metrics.json .
+cp runs/<final-run>/final/gds/mult_array.gds .
+klayout mult_array.gds
 ```
 
-| Attempt | CLOCK_PERIOD (ns) | Setup slack (ns) | DRC | LVS | Result |
-|---------|-------------------|------------------|-----|-----|--------|
-| 1 | | | | | |
+Every run:
 
-Final run files copied from `runs/<run>/final/` to `pnr/metrics.json` and `pnr/mult_array.gds`.
+| Attempt | CLOCK_PERIOD (ns) | Setup slack (ns) | DRC errors | LVS errors |
+|---------|-------------------|------------------|------------|------------|
+| 1 | | | | |
