@@ -7,7 +7,7 @@ A 4-bit × 4-bit unsigned array multiplier (16 AND gates, 12 full adders, regist
 | Name | Roll number |
 |------|-------------|
 | Anshitha Penubolu | 2023102014 |
-| TEAMMATE NAME | 2024112016 |
+| Lavanya Patil | 2024112016 |
 
 ## Repository layout
 
