@@ -68,7 +68,7 @@ sta sta/sta.tcl                    # T = 10 ns: worst slack 7.020 ns, so Tmin = 
 STA_PERIOD=2.98 sta sta/sta.tcl    # T = Tmin: worst slack 0.000 ns
 ```
 
-`sta/mult_array_timing.rpt` is the report from the second run (T = 2.98 ns).
+Tmin = 2.98 ns, so Fmax = 1000 / Tmin = 1000 / 2.98 = 335.6 MHz (typical corner, before layout). `sta/mult_array_timing.rpt` is the report from the second run (T = 2.98 ns).
 
 ### Part D: Physical design
 
